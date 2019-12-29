@@ -1,0 +1,1 @@
+auth requisite pam_python.so /etc/pam.d/pam.py

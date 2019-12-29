@@ -1,0 +1,30 @@
+Procedure for installation:
+---------------------------
+
+. Copy the files to /etc/folder (skip user_indices file) as shown below:
+      epass -> /etc/epass
+      rsa_gen_key -> /etc/rsa_gen_key
+      pam.py -> /etc/pam.d/pam.py
+. Execute run.sh as root (as below):
+
+# bash run.sh
+....................+++
+..............................................................................+++
+Enter a username: root
+Enter indices (space separated): 1 2 3 4
+#
+
+. Put the following into /etc/pam.d/su (be careful to take a backup of the original /etc/pam.d/su file for safety):
+
+# cat /etc/pam.d/su
+auth    requisite       pam_python.so /etc/pam.d/pam.py
+
+. Run "su - root" on another terminal tab
+. If there is not much of PAM disturbance, you will get a prompt like below:
+
+$ su - root
+Select characters from: hhwxorowwuefkiegzqosnjxpvkmhhhqduoxwvbygrylonrnpoe
+
+. Enter the characters at indices 1 2 3 and 4 (letters 'h', 'o', 'w' and 'u' without quotes)
+. You will get root shell
+. Test for wrong passwords too, and let me know about bugs :)

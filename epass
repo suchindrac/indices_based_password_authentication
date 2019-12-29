@@ -1,0 +1,67 @@
+#!/usr/bin/python
+
+#
+# Script to fetch indices from user and store it in encrypted form in /etc/user_indices
+#
+import fileinput
+from M2Crypto import *
+import sys
+import base64
+
+username = raw_input('Enter a username: ')
+indices = raw_input('Enter indices (space separated): ')
+
+try:
+	indices_list = indices.split(" ")
+	if (len(indices_list) == 0) or (len(indices_list) == 1):
+		print("Invalid indices, please use spaces to separate them")
+		sys.exit(1)
+	for index in indices_list:
+		int_value = int(index, 10)
+except:
+	print("Invalid indices, please use spaces to separate them")
+	sys.exit(1)
+
+indices_cs = ",".join(indices.split())
+user_str = "%s = %s" % (username, indices_cs)
+
+priv = RSA.load_key("/etc/auth_private_key.pem")
+pub = RSA.load_pub_key("/etc/auth_public_key.pem")
+
+data_fd = open("/etc/user_indices", "rw+")
+
+enc_data = data_fd.read()
+
+file_was_empty = 0
+if enc_data == "":
+	ctxt = pub.public_encrypt(user_str, RSA.pkcs1_oaep_padding)
+	data_fd.write(ctxt.encode('base64'))
+	file_was_empty = 1
+else:
+	dec_data = base64.b64decode(enc_data)
+	dec_content = priv.private_decrypt(dec_data, RSA.pkcs1_oaep_padding)
+
+if file_was_empty == 1:
+	sys.exit(0)
+else:
+	user_indices_dict = {}
+
+	for line in dec_content.split("\n"):
+		try:
+			(user, indices_str) = line.split("=")
+		except ValueError:
+			pass
+		user = user.strip()
+		indices_str = indices_str.strip()
+		user_indices_dict[user] = indices_str
+	user_indices_dict[username] = indices_cs
+	data_fd.close()
+	open("/etc/user_indices", "rw").close()
+	data_fd = open("/etc/user_indices", "rw+")
+	to_write = ""
+	for key in user_indices_dict:
+		to_write = to_write + "%s = %s\n" % (key, user_indices_dict[key]) 
+
+	ctxt = pub.public_encrypt(to_write, RSA.pkcs1_oaep_padding)
+	data_fd.write(ctxt.encode('base64'))
+	data_fd.close()

@@ -1,0 +1,15 @@
+#!/usr/bin/python
+
+#
+# Script to generate public and private keys
+#
+import M2Crypto
+import sys
+from M2Crypto import RSA, EVP
+
+name = sys.argv[1]
+
+key= RSA.gen_key(2048, 65537)
+
+key.save_key ("/etc/%s_private_key.pem" % (name), None)
+key.save_pub_key ("/etc/%s_public_key.pem" % (name))
