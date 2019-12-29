@@ -1,7 +1,7 @@
 Procedure for installation:
 ---------------------------
 
-. Copy the files to /etc/folder (skip user_indices file) as shown below:
+. Copy the files to /etc folder (skip user_indices file) as shown below:
       epass -> /etc/epass
       rsa_gen_key -> /etc/rsa_gen_key
       pam.py -> /etc/pam.d/pam.py
